@@ -2,12 +2,8 @@ const pkg = require('./package')
 
 module.exports = {
   mode: 'spa',
-
-  /*
-  ** Headers of the page
-  */
   head: {
-    title: pkg.name,
+    title: 'Garnet',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -15,33 +11,10 @@ module.exports = {
     ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
   },
-
-  /*
-  ** Customize the progress-bar color
-  */
   loading: { color: '#fff' },
-
-  /*
-  ** Global CSS
-  */
   css: [],
-
-  /*
-  ** Plugins to load before mounting the App
-  */
   plugins: [],
-
-  /*
-  ** Nuxt.js modules
-  */
-  modules: [
-    // Doc:https://github.com/nuxt-community/modules/tree/master/packages/bulma
-    '@nuxtjs/bulma'
-  ],
-
-  /*
-  ** Build configuration
-  */
+  modules: ['@nuxtjs/bulma', 'nuxt-fontawesome'],
   build: {
     postcss: {
       preset: {
@@ -64,5 +37,13 @@ module.exports = {
         })
       }
     }
+  },
+  fontawesome: {
+    imports: [
+      {
+        set: '@fortawesome/free-solid-svg-icons',
+        icons: ['fas']
+      }
+    ]
   }
 }
