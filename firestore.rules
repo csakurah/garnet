@@ -1,0 +1,31 @@
+service cloud.firestore {
+  match /databases/{database}/documents {
+  	// Plants:
+    //   - Anyone can read.
+    //   - Authenticated users can add and edit data.
+    //   - Validation: Check name is same as auth token
+    //   - name length below 100 char or that imageUrl is a URL.
+    //   - Deletes are not allowed.
+    match /plants/{messageId} {
+      allow read;
+      allow create, update: if request.auth != null
+      	&& request.resource.data.userName == request.auth.token.name
+        && (request.resource.data.name is string
+        	&& request.resource.data.text.size() <= 100
+          || request.resource.data.imageUrl is string
+          && request.resource.data.imageUrl.matches('https?://.*'));
+      allow delete: if false;
+    }
+  
+  
+  	// PlantSoilMoisture
+  	// 	 - Anyone can read
+  	// 	 - Authenticated users can add and edit database
+    match /PlantLog/{logId} {
+    	allow read;
+      allow create, update: if request.auth != null
+      	&& request.resource.data.userName == request.auth.token.name;
+      allow delete: if false;
+    }
+  }
+}

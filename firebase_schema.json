@@ -1,0 +1,21 @@
+{
+  "plants": {
+    "id": "ID",
+    "name": "植物の名前",
+    "userName": "植物の持ち主",
+    "imageURL": "植物の画像URL"
+  },
+  "observers": {
+    "id": "ID",
+    "userName": "arduinoの持ち主",
+    "type": "arduino",
+    "name": "arduinoの名前",
+    "observerKey": "ログ作成用キー"
+  },
+  "plantLog": {
+    "id": "ログID",
+    "plantId": "植物ID",
+    "observerId": "arduinoのID",
+    "timestamp": "タイムスタンプ"
+  }
+}
