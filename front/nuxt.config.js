@@ -38,6 +38,9 @@ module.exports = {
       }
     }
   },
+  generate: {
+    dir: '../public'
+  },
   fontawesome: {
     imports: [
       {
