@@ -35,25 +35,37 @@
       <div class="navbar-end">
         <div class="navbar-item">
           <div class="buttons">
-            <nuxt-link to="/register" class="button is-primary">
-              <strong>登録</strong>
-            </nuxt-link>
+            <a class="button is-primary" @click.prevent="showRegisterModal">
+              <strong>アカウント登録</strong>
+            </a>
             
-            <nuxt-link to="/login" class="button is-light">
+            <a class="button is-light" @click.prevent="showLoginModal">
               ログイン
-            </nuxt-link>
+            </a>
           </div>
         </div>
       </div>
     </div>
+
+    <auth-modal
+      :tab="authModalTab"
+      @change="changeAuthModalTab"
+      @close="closeAuthModal"
+    />
   </header>
 </template>
 
 <script>
+import AuthModal from './AuthModal'
+
 export default {
+  components: {
+    AuthModal
+  },
   data() {
     return {
-      showMenu: false
+      showMenu: false,
+      authModalTab: 'none'
     }
   },
   watch: {
@@ -64,6 +76,18 @@ export default {
   methods: {
     toggleMenu() {
       this.showMenu = !this.showMenu
+    },
+    showLoginModal() {
+      this.authModalTab = 'login'
+    },
+    showRegisterModal() {
+      this.authModalTab = 'register'
+    },
+    changeAuthModalTab(tab) {
+      this.authModalTab = tab
+    },
+    closeAuthModal() {
+      this.authModalTab = 'none'
     }
   }
 }

@@ -45,6 +45,7 @@ build/Release
 
 # Dependency directories
 node_modules/
+jspm_packages/
 
 # Optional npm cache directory
 .npm
@@ -63,3 +64,9 @@ node_modules/
 
 # dotenv environment variables file
 .env
+
+# next.js build output
+.next
+
+# nuxt.js build output
+.nuxt
