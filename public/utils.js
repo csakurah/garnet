@@ -131,11 +131,11 @@ export async function setContext(app, context) {
       isDev: true,
       isHMR: false,
       app,
-
+      store: app.store,
       payload: context.payload,
       error: context.error,
       base: '/',
-      env: {}
+      env: {"firebase":{"apiKey":"AIzaSyDDyDyUYwRaw2JljvoJ2cmJqHCRh8gODIE","authDomain":"garnet-d44e7.firebaseapp.com","databaseURL":"https://garnet-d44e7.firebaseio.com","projectId":"garnet-d44e7","storageBucket":"garnet-d44e7.appspot.com","messagingSenderId":"257208157189"}}
     }
     // Only set once
     if (context.req) app.context.req = context.req
