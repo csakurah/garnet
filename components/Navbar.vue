@@ -34,15 +34,28 @@
 
       <div class="navbar-end">
         <div class="navbar-item">
-          <div class="buttons">
-            <a class="button is-primary" @click.prevent="showRegisterModal">
-              <strong>アカウント登録</strong>
+          <template v-if="authStatus === 'loading'">
+            <font-awesome-icon icon="spinner" spin class="loading-icon" />
+            <span>読み込み中</span>
+          </template>
+          
+          <template v-else-if="authStatus === 'notLoggedIn'">
+            <div class="buttons">
+              <a class="button is-primary" @click.prevent="showRegisterModal">
+                <strong>アカウント登録</strong>
+              </a>
+              <a class="button is-light" @click.prevent="showLoginModal">
+                ログイン
+              </a>
+            </div>
+          </template>
+
+          <template v-else-if="authStatus === 'loggedIn'">
+            <span>ログイン済</span>
+            <a class="button is-light" @click.prevent="logout">
+              ログアウト
             </a>
-            
-            <a class="button is-light" @click.prevent="showLoginModal">
-              ログイン
-            </a>
-          </div>
+          </template>
         </div>
       </div>
     </div>
@@ -56,6 +69,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import AuthModal from './AuthModal'
 
 export default {
@@ -68,9 +82,17 @@ export default {
       authModalTab: 'none'
     }
   },
+  computed: {
+    ...mapGetters(['authStatus'])
+  },
   watch: {
     $route() {
       this.showMenu = false
+    },
+    authStatus(status) {
+      if (status !== 'loading') {
+        this.authModalTab = 'none'
+      }
     }
   },
   methods: {
@@ -88,7 +110,16 @@ export default {
     },
     closeAuthModal() {
       this.authModalTab = 'none'
+    },
+    logout() {
+      this.$store.dispatch('logout')
     }
   }
 }
 </script>
+
+<style scoped>
+.loading-icon {
+  margin-right: 0.5rem;
+}
+</style>

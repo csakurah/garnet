@@ -16,7 +16,11 @@
   "dependencies": {
     "@nuxtjs/bulma": "^1.2.1",
     "cross-env": "^5.2.0",
-    "nuxt": "^2.4.5"
+    "firebase": "^5.8.5",
+    "node-sass": "^4.11.0",
+    "nuxt": "^2.4.5",
+    "sass-loader": "^7.1.0",
+    "vuexfire": "^2.3.1"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.15",
