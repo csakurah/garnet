@@ -3,7 +3,8 @@ const config = require('./config/config.dev')
 
 module.exports = {
   mode: 'spa',
-  buildDir: './public',
+  srcDir: './src',
+  buildDir: './build',
   head: {
     title: 'Garnet',
     meta: [
