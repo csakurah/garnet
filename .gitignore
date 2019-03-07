@@ -71,3 +71,4 @@ jspm_packages/
 # nuxt.js build output
 .nuxt
 public/*
+config/*
