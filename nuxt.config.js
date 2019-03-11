@@ -1,5 +1,5 @@
 const pkg = require('./package')
-const config = require('./config/config.dev')
+const config = require('./functions/keys/config.dev')
 
 module.exports = {
   mode: 'spa',
