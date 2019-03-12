@@ -11,6 +11,17 @@ admin.initializeApp({
 const db = admin.firestore()
 
 exports.plants = functions.https.onRequest((req, res) => {
+  // eslint-disable-next-line
+  console.log('request body:')
+  // eslint-disable-next-line
+  console.log(req.body)
+  // for dev
+  res.set('Access-Control-Allow-Origin', 'http://localhost:3000')
+  res.set(
+    'Access-Control-Allow-Methods',
+    'GET, HEAD, OPTIONS, POST, PUT, DELETE'
+  )
+
   if (req.method === 'GET') {
     if (req.query.id) {
       getPlant(req, res)
@@ -31,6 +42,13 @@ exports.plants = functions.https.onRequest((req, res) => {
 })
 
 exports.addRecord = functions.https.onRequest((req, res) => {
+  // for dev
+  res.set('Access-Control-Allow-Origin', 'http://localhost:3000')
+  res.set(
+    'Access-Control-Allow-Methods',
+    'GET, HEAD, OPTIONS, POST, PUT, DELETE'
+  )
+
   const now = moment.format('YYYY-MM-DD hh:mm:ss')
   const record = {
     id: req.body.id,
@@ -92,6 +110,8 @@ function getPlants(req, res) {
 }
 
 function getPlant(req, res) {
+  let plant
+
   db.collection('plants')
     .doc(req.query.id)
     .get()
@@ -101,6 +121,8 @@ function getPlant(req, res) {
           new Error('指定されたIDの植物は見つかりませんでした。')
         )
       }
+      plant = snapshot.data()
+      plant.id = snapshot.id
       return snapshot.ref.collection('records').get()
     })
     .then(snapshot => {
@@ -110,6 +132,8 @@ function getPlant(req, res) {
       })
 
       return res.status(200).json({
+        id: plant.id,
+        name: plant.name,
         status: 'OK',
         records: records
       })

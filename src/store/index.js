@@ -1,76 +1,121 @@
-import firebase from '~/plugins/firebase'
-// import { firebaseMutations, firebaseAction } from 'vuexfire'
+import axios from 'axios'
+import qs from 'qs'
+const API_URL = 'http://localhost:5001/garnet-d44e7/us-central1/'
 
 export const state = () => ({
-  authStatus: 'loading',
-  user: null,
-  error: null,
-  plants: [],
-  plantlog: []
+  status: null,
+  plants: null,
+  plant: null,
+  error: null
 })
 
 export const getters = {
-  user: state => state.user,
-  authStatus: state => state.authStatus
+  status: state => state.status,
+  plants: state => state.plants,
+  plant: state => state.plant,
+  error: state => state.error
 }
 
 export const actions = {
-  async login({ commit }, payload) {
+  async getPlants({ commit }) {
+    commit('setStatus', 'retrieving')
+    commit('setError', null)
     try {
-      const userCredential = await firebase
-        .auth()
-        .signInAndRetrieveDataWithEmailAndPassword(
-          payload.email,
-          payload.password
-        )
-
-      commit('setUser', userCredential.user)
-      commit('setError', null)
+      const res = await axios.get(API_URL + 'plants')
+      if (res.data.status !== 'OK') {
+        throw new Error('観葉植物一覧の取得に失敗しました。')
+      }
+      commit('setStatus', 'respond-with-success')
+      commit('setPlants', res.data.plants)
     } catch (error) {
-      commit('setError', error)
+      commit('setStatus', 'respond-with-error')
+      commit('setError', error.message)
     }
   },
-  async register({ commit }, payload) {
+  async getPlant({ commit }, payload) {
+    commit('setStatus', 'retrieving')
+    commit('setError', null)
     try {
-      const userCredential = await firebase
-        .auth()
-        .createUserAndRetrieveDataWithEmailAndPassword(
-          payload.email,
-          payload.password
-        )
-
-      commit('setUser', userCredential.user)
-      commit('setError', null)
+      const res = await axios.get(API_URL + 'plants?id=' + payload.id)
+      if (res.data.status !== 'OK') {
+        throw new Error('観葉植物一覧の取得に失敗しました。')
+      }
+      commit('setStatus', 'respond-with-success')
+      commit('setPlant', res.data)
     } catch (error) {
-      commit('setError', error)
+      commit('setStatus', 'respond-with-error')
+      commit('setError', error.message)
     }
   },
-  async logout({ commit }) {
-    await firebase.auth().signOut()
-    commit('setUser', null)
+  async addPlant({ commit }, payload) {
+    commit('setStatus', 'retrieving')
+    commit('setError', null)
+    try {
+      const res = await axios.post(
+        API_URL + 'plants',
+        qs.stringify({
+          name: payload.name
+        })
+      )
+      if (res.data.status !== 'OK') {
+        throw new Error('観葉植物の追加に失敗しました。')
+      }
+      commit('setStatus', 'respond-with-success')
+    } catch (error) {
+      commit('setStatus', 'respond-with-error')
+      commit('setError', error.message)
+    }
   },
-  getAuthState({ commit }) {
-    firebase.auth().onAuthStateChanged(user => {
-      commit('setUser', user || null)
-    })
+  async editPlant({ commit }, payload) {
+    commit('setStatus', 'retrieving')
+    commit('setError', null)
+    try {
+      const res = await axios.put(
+        API_URL + 'plants',
+        qs.stringify({
+          id: payload.id,
+          name: payload.name
+        })
+      )
+      if (res.data.status !== 'OK') {
+        throw new Error('観葉植物の更新に失敗しました。')
+      }
+      commit('setStatus', 'respond-with-success')
+    } catch (error) {
+      commit('setStatus', 'respond-with-error')
+      commit('setError', error.message)
+    }
+  },
+  async deletePlant({ commit }, payload) {
+    commit('setStatus', 'retrieving')
+    commit('setError', null)
+    try {
+      const res = await axios.get(
+        API_URL + 'plants',
+        qs.stringify({
+          id: payload.id
+        })
+      )
+      if (res.status !== 'OK') {
+        throw new Error('観葉植物の削除に失敗しました。')
+      }
+      commit('setStatus', 'respond-with-success')
+    } catch (error) {
+      commit('setStatus', 'respond-with-error')
+      commit('setError', error.message)
+    }
   }
 }
 
 export const mutations = {
-  setUser(state, _user) {
-    if (_user) {
-      const user = {
-        displayName: _user.displayName,
-        email: _user.email,
-        emailVerified: _user.emailVerified,
-        photoURL: _user.photoURL
-      }
-      state.user = user
-      state.authStatus = 'loggedIn'
-    } else {
-      state.user = null
-      state.authStatus = 'notLoggedIn'
-    }
+  setStatus(state, status) {
+    state.status = status
+  },
+  setPlants(state, plants) {
+    state.plants = plants
+  },
+  setPlant(state, plant) {
+    state.plant = plant
   },
   setError(state, error) {
     state.error = error

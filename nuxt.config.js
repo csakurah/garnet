@@ -1,5 +1,4 @@
 const pkg = require('./package')
-const config = require('./functions/keys/config.dev')
 
 module.exports = {
   mode: 'spa',
@@ -45,8 +44,5 @@ module.exports = {
         icons: ['fas']
       }
     ]
-  },
-  env: {
-    firebase: config.firebase
   }
 }
