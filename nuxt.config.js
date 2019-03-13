@@ -1,9 +1,9 @@
 const pkg = require('./package')
-const config = require('./config/config.dev')
 
 module.exports = {
   mode: 'spa',
-  buildDir: './public',
+  srcDir: './src',
+  buildDir: './build',
   head: {
     title: 'Garnet',
     meta: [
@@ -44,8 +44,5 @@ module.exports = {
         icons: ['fas']
       }
     ]
-  },
-  env: {
-    firebase: config.firebase
   }
 }
