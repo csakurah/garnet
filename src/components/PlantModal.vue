@@ -1,19 +1,19 @@
 <template>
   <div :class="show ? 'modal is-active' : 'modal'">
-    <div class="modal-background" @click="$emit('close')" />
+    <div class="modal-background" @click="close" />
     <div class="modal-content">
       <div class="box has-text-centered">
         <form>
           <template v-if="mode === 'add'">
             <!-- 追加 -->
             <div class="field">
-              <input class="input" type="text" placeholder="観葉植物の名前を入力してください" :value="name" @input="updateName">
+              <input class="input" type="text" placeholder="観葉植物の名前を入力してください" :value="name" @input="updateInputName">
             </div>
             <div class="field">
               <button class="button is-primary" @click.prevent="addPlant">
                 登録
               </button>
-              <button class="button" @click.prevent="$emit('close')">
+              <button class="button" @click.prevent="close">
                 キャンセル
               </button>
             </div>
@@ -22,13 +22,13 @@
           <template v-if="mode === 'edit'">
             <!-- 更新 -->
             <div class="field">
-              <input class="input" type="text" :value="name" @input="updateName">
+              <input class="input" type="text" :value="name" @input="updateInputName">
             </div>
             <div class="field">
               <button class="button is-primary" @click.prevent="editPlant">
                 更新
               </button>
-              <button class="button" @click.prevent="$emit('close')">
+              <button class="button" @click.prevent="close">
                 キャンセル
               </button>
             </div>
@@ -43,7 +43,7 @@
               <button class="button is-danger" @click.prevent="deletePlant">
                 削除
               </button>
-              <button class="button" @click.prevent="$emit('close')">
+              <button class="button" @click.prevent="close">
                 キャンセル
               </button>
             </div>
@@ -51,7 +51,7 @@
         </form>
       </div>
     </div>
-    <button class="modal-close is-large" @click="$emit('close')" />
+    <button class="modal-close is-large" @click="close" />
   </div>
 </template>
 
@@ -82,31 +82,44 @@ export default {
     ...mapGetters(['status'])
   },
   watch: {
+    plant(value) {
+      if (value) {
+        this.inputName = value.name
+      } else {
+        this.inputName = null
+      }
+    },
     status(value) {
-      if (value === 'respond-with-success') {
-        this.$emit('close')
+      if (
+        value.action !== 'getPlants' &&
+        value.status === 'respond-with-success'
+      ) {
+        this.close(null, true)
       }
     }
   },
   methods: {
     addPlant() {
       this.$store.dispatch('addPlant', {
-        name: this.name
+        name: this.inputName
       })
     },
     editPlant() {
       this.$store.dispatch('editPlant', {
-        id: this.id,
-        name: this.name
+        id: this.plantId,
+        name: this.inputName
       })
     },
     deletePlant() {
       this.$store.dispatch('deletePlant', {
-        id: this.id
+        id: this.plantId
       })
     },
-    updateName(event) {
+    updateInputName(event) {
       this.$emit('change-name', event.target.value)
+    },
+    close(event, autoClose) {
+      this.$emit('close', autoClose)
     }
   }
 }

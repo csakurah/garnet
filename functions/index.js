@@ -22,6 +22,8 @@ exports.plants = functions.https.onRequest((req, res) => {
     'GET, HEAD, OPTIONS, POST, PUT, DELETE'
   )
 
+  // FIXME: ブラウザからAPIを実行する場合、PUTとDELETEはOPTIONSで到達する
+  // req.getでAccess-Control-Request-Method: PUT or DELETEを確認する必要あり
   if (req.method === 'GET') {
     if (req.query.id) {
       getPlant(req, res)
@@ -91,11 +93,15 @@ exports.addRecord = functions.https.onRequest((req, res) => {
 function getPlants(req, res) {
   db.collection('plants')
     .get()
-    .then(snapshot => {
-      const plants = []
-      snapshot.forEach(doc => {
-        plants.push(Object.assign({}, { id: doc.id }, doc.data()))
+    .then(snapshots => {
+      const getRecordPromises = []
+      snapshots.forEach(snapshot => {
+        getRecordPromises.push(getPlantRecords(snapshot))
       })
+
+      return Promise.all(getRecordPromises)
+    })
+    .then(plants => {
       return res.status(200).json({
         status: 'OK',
         plants: plants
@@ -107,6 +113,32 @@ function getPlants(req, res) {
         error: errorToString(error)
       })
     })
+}
+
+function getPlantRecords(snapshot) {
+  return new Promise((resolve, reject) => {
+    const plant = snapshot.data()
+    plant.id = snapshot.id
+
+    snapshot.ref
+      .collection('records')
+      .get()
+      .then(snapshots => {
+        const records = []
+        snapshots.forEach(snapshot => {
+          const record = snapshot.data()
+          record.id = snapshot.id
+          records.push(record)
+        })
+
+        plant.records = records
+        resolve(plant)
+        return
+      })
+      .catch(error => {
+        reject(error)
+      })
+  })
 }
 
 function getPlant(req, res) {
