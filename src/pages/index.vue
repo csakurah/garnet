@@ -2,7 +2,13 @@
   <main>
     <section class="section">
       <div class="container">
-        <chart :height="100" class="chart" />
+        <chart
+          v-if="plants && plants.length"
+          :plants="plants"
+          :height="100"
+          class="chart"
+          style="margin-bottom: 1rem;"  
+        />
 
         <div class="tabs">
           <ul>

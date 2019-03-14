@@ -1,4 +1,5 @@
 import axios from 'axios'
+import moment from 'moment'
 import qs from 'qs'
 const API_URL = 'http://localhost:5001/garnet-d44e7/us-central1/'
 
@@ -25,11 +26,35 @@ export const actions = {
       if (res.data.status !== 'OK') {
         throw new Error(res.data.error)
       }
+
+      // 時差補正
+      let plants = []
+      if (res.data.plants) {
+        plants = res.data.plants.map(plant => {
+          let records = []
+          if (plant.records) {
+            records = plant.records.map(record => {
+              const newRecord = Object.assign({}, record)
+              const recordedAt = record.recorded_at // UTC-3
+              const calibratedRecordedAt = moment(recordedAt) // UTC+9
+                .add(12, 'hours')
+                .format('YYYY-MM-DD HH:mm:ss')
+              newRecord.recorded_at = calibratedRecordedAt
+
+              return newRecord
+            })
+          }
+          const newPlant = Object.assign({}, plant)
+          newPlant.records = records
+          return newPlant
+        })
+      }
+
       commit('setStatus', {
         action: 'getPlants',
         state: 'respond-with-success'
       })
-      commit('setPlants', res.data.plants)
+      commit('setPlants', plants)
     } catch (error) {
       commit('setStatus', {
         action: 'getPlants',

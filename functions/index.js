@@ -1,6 +1,6 @@
 const admin = require('firebase-admin')
 const functions = require('firebase-functions')
-const moment = require('moment-timezone').tz('Asia/Tokyo')
+const moment = require('moment')
 const serviceAccount = require('./keys/serviceAccountKey.json')
 
 admin.initializeApp({
@@ -15,7 +15,7 @@ exports.addRecord = functions.https.onRequest((req, res) => {
   res.set('Access-Control-Allow-Origin', 'http://localhost:3000')
   res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST')
 
-  const now = moment.format('YYYY-MM-DD hh:mm:ss')
+  const now = moment().format('YYYY-MM-DD hh:mm:ss')
   const record = {
     id: req.body.id,
     humidity: req.body.humidity,
@@ -58,6 +58,7 @@ exports.getPlants = functions.https.onRequest((req, res) => {
   res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST')
 
   db.collection('plants')
+    .orderBy('created_at', 'desc')
     .get()
     .then(snapshots => {
       const getRecordPromises = []
@@ -88,6 +89,7 @@ function getPlantRecords(snapshot) {
 
     snapshot.ref
       .collection('records')
+      .orderBy('recorded_at', 'desc')
       .get()
       .then(snapshots => {
         const records = []
@@ -112,8 +114,10 @@ exports.createPlant = functions.https.onRequest((req, res) => {
   res.set('Access-Control-Allow-Origin', 'http://localhost:3000')
   res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST')
 
+  const now = moment().format('YYYY-MM-DD hh:mm:ss')
   const plant = {
-    name: req.body.name
+    name: req.body.name,
+    created_at: now
   }
 
   if (!plant.name) {
