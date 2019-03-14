@@ -10,46 +10,10 @@ admin.initializeApp({
 
 const db = admin.firestore()
 
-exports.plants = functions.https.onRequest((req, res) => {
-  // eslint-disable-next-line
-  console.log('request body:')
-  // eslint-disable-next-line
-  console.log(req.body)
-  // for dev
-  res.set('Access-Control-Allow-Origin', 'http://localhost:3000')
-  res.set(
-    'Access-Control-Allow-Methods',
-    'GET, HEAD, OPTIONS, POST, PUT, DELETE'
-  )
-
-  // FIXME: ブラウザからAPIを実行する場合、PUTとDELETEはOPTIONSで到達する
-  // req.getでAccess-Control-Request-Method: PUT or DELETEを確認する必要あり
-  if (req.method === 'GET') {
-    if (req.query.id) {
-      getPlant(req, res)
-    } else {
-      getPlants(req, res)
-    }
-  } else if (req.method === 'POST') {
-    createPlant(req, res)
-  } else if (req.method === 'PUT') {
-    updatePlant(req, res)
-  } else if (req.method === 'DELETE') {
-    deletePlant(req, res)
-  } else {
-    res.status(406).json({
-      status: 'NG'
-    })
-  }
-})
-
 exports.addRecord = functions.https.onRequest((req, res) => {
   // for dev
   res.set('Access-Control-Allow-Origin', 'http://localhost:3000')
-  res.set(
-    'Access-Control-Allow-Methods',
-    'GET, HEAD, OPTIONS, POST, PUT, DELETE'
-  )
+  res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST')
 
   const now = moment.format('YYYY-MM-DD hh:mm:ss')
   const record = {
@@ -90,7 +54,11 @@ exports.addRecord = functions.https.onRequest((req, res) => {
     })
 })
 
-function getPlants(req, res) {
+exports.getPlants = functions.https.onRequest((req, res) => {
+  // for dev
+  res.set('Access-Control-Allow-Origin', 'http://localhost:3000')
+  res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST')
+
   db.collection('plants')
     .get()
     .then(snapshots => {
@@ -113,7 +81,7 @@ function getPlants(req, res) {
         error: errorToString(error)
       })
     })
-}
+})
 
 function getPlantRecords(snapshot) {
   return new Promise((resolve, reject) => {
@@ -141,45 +109,11 @@ function getPlantRecords(snapshot) {
   })
 }
 
-function getPlant(req, res) {
-  let plant
+exports.createPlant = functions.https.onRequest((req, res) => {
+  // for dev
+  res.set('Access-Control-Allow-Origin', 'http://localhost:3000')
+  res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST')
 
-  db.collection('plants')
-    .doc(req.query.id)
-    .get()
-    .then(snapshot => {
-      if (!snapshot.exists) {
-        return Promise.reject(
-          new Error('指定されたIDの植物は見つかりませんでした。')
-        )
-      }
-      plant = snapshot.data()
-      plant.id = snapshot.id
-      return snapshot.ref.collection('records').get()
-    })
-    .then(snapshot => {
-      const records = []
-      snapshot.forEach(doc => {
-        records.push(doc.data())
-      })
-
-      return res.status(200).json({
-        id: plant.id,
-        name: plant.name,
-        status: 'OK',
-        records: records
-      })
-    })
-    .catch(error => {
-      console.log(error)
-      return res.status(400).json({
-        status: 'NG',
-        error: errorToString(error)
-      })
-    })
-}
-
-function createPlant(req, res) {
   const plant = {
     name: req.body.name
   }
@@ -204,9 +138,13 @@ function createPlant(req, res) {
         error: errorToString(error)
       })
     })
-}
+})
 
-function updatePlant(req, res) {
+exports.updatePlant = functions.https.onRequest((req, res) => {
+  // for dev
+  res.set('Access-Control-Allow-Origin', 'http://localhost:3000')
+  res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST')
+
   const plant = {
     id: req.body.id,
     name: req.body.name
@@ -236,9 +174,13 @@ function updatePlant(req, res) {
     .catch(error => {
       return res.status(400).json({ status: 'NG', error: errorToString(error) })
     })
-}
+})
 
-function deletePlant(req, res) {
+exports.deletePlant = functions.https.onRequest((req, res) => {
+  // for dev
+  res.set('Access-Control-Allow-Origin', 'http://localhost:3000')
+  res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST')
+
   if (!req.body.id) {
     res
       .status(400)
@@ -282,7 +224,7 @@ function deletePlant(req, res) {
     .catch(error => {
       return res.status(400).json({ status: 'NG', error: errorToString(error) })
     })
-}
+})
 
 function errorToString(error) {
   if (!error) {

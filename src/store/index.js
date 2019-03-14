@@ -21,7 +21,7 @@ export const actions = {
       state: 'retrieving'
     })
     try {
-      const res = await axios.get(API_URL + 'plants')
+      const res = await axios.get(API_URL + 'getPlants')
       if (res.data.status !== 'OK') {
         throw new Error('観葉植物一覧の取得に失敗しました。')
       }
@@ -46,7 +46,7 @@ export const actions = {
     commit('setError', null)
     try {
       const res = await axios.post(
-        API_URL + 'plants',
+        API_URL + 'createPlant',
         qs.stringify({
           name: payload.name
         })
@@ -72,8 +72,8 @@ export const actions = {
       state: 'retrieving'
     })
     try {
-      const res = await axios.put(
-        API_URL + 'plants',
+      const res = await axios.post(
+        API_URL + 'updatePlant',
         qs.stringify({
           id: payload.id,
           name: payload.name
@@ -100,8 +100,8 @@ export const actions = {
       state: 'retrieving'
     })
     try {
-      const res = await axios.delete(
-        API_URL + 'plants',
+      const res = await axios.post(
+        API_URL + 'deletePlant',
         qs.stringify({
           id: payload.id
         })
