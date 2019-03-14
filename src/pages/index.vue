@@ -2,16 +2,18 @@
   <main>
     <section class="section">
       <div class="container">
+        <chart :height="100" class="chart" />
+
         <div class="tabs">
           <ul>
             <li
-              v-for="_plant in plants"
-              :key="_plant.id"
-              :class="plant && plant.id === _plant.id ? 'is-active' : ''"
+              v-for="plant in plants"
+              :key="plant.id"
+              :class="selectedPlant && plant.id === selectedPlant.id ? 'is-active' : ''"
             >
-              <a @click.prevent="switchTab(_plant.id)">
-                <font-awesome-icon icon="leaf" />&nbsp;
-                <span>{{ _plant.name }}</span>
+              <a @click.prevent="switchTab(plant)">
+                <font-awesome-icon icon="leaf" class="has-text-primary" />&nbsp;
+                <span>{{ plant.name }}</span>
               </a>
             </li>
             <li :class="(!plants || !plants.length) ? 'is-active' : ''">
@@ -29,26 +31,32 @@
         </div>
         <div v-if="error">
           <!-- エラー発生 -->
-          <font-awesome-icon icon="warning" />
-          <p>{{ error }}</p>
+          <p>
+            <font-awesome-icon icon="exclamation-triangle" />&nbsp;{{ error }}
+          </p>
         </div>
         <div v-if="!error && plants && !plants.length">
           <!-- 観葉植物なし -->
           <p>
-            <font-awesome-icon icon="info" />
-            <span>観葉植物が登録されていません。</span>
+            <font-awesome-icon icon="info" />&nbsp;観葉植物が登録されていません。
           </p>
         </div>
 
-        <plant-detail v-if="plant" />
+        <plant-detail
+          v-if="selectedPlant"
+          :plant="selectedPlant"
+          @edit-plant="editSelectedPlant"
+          @delete-plant="deleteSelectedPlant"
+        />
       </div>
     </section>
 
     <plant-modal
-      :show="shownModal"
-      :mode="modalMode"
-      :name="modalPlantName"
-      :plant-id="modalPlantId"
+      v-if="modal.show"
+      :show="modal.show"
+      :mode="modal.mode"
+      :plant-id="modal.plantId"
+      :name="modal.input.name"
       @change-name="modalChangeName"
       @close="closeModal"
     />
@@ -57,27 +65,34 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import Chart from '../components/Chart'
 import PlantDetail from '../components/PlantDetail'
 import PlantModal from '../components/PlantModal'
 
 export default {
   components: {
     PlantDetail,
-    PlantModal
+    PlantModal,
+    Chart
   },
   data: () => ({
-    shownModal: false,
-    modalMode: null,
-    modalPlantName: null,
-    modalPlantId: null
+    modal: {
+      show: false,
+      mode: null,
+      plantId: null,
+      input: {
+        name: null
+      }
+    },
+    selectedPlant: null
   }),
   computed: {
-    ...mapGetters(['status', 'plants', 'plant', 'error'])
+    ...mapGetters(['status', 'plants', 'error'])
   },
   watch: {
     plants(value) {
       if (value && value.length) {
-        this.getPlant(value[0].id)
+        this.switchTab(value[0])
       }
     }
   },
@@ -85,25 +100,37 @@ export default {
     this.getPlants()
   },
   methods: {
-    showModal(mode) {
-      this.shownModal = true
-      this.modalMode = mode
+    showModal(mode, plant) {
+      this.modal = {
+        show: true,
+        mode: mode,
+        plantId: plant ? plant.id : null,
+        input: { name: plant ? plant.name : null }
+      }
     },
-    closeModal() {
-      this.shownModal = false
-      this.modalMode = null
+    editSelectedPlant(plant) {
+      this.showModal('edit', plant)
+    },
+    deleteSelectedPlant(plant) {
+      this.showModal('delete', plant)
+    },
+    closeModal(autoClose) {
+      if (autoClose) {
+        this.getPlants()
+      }
+      this.modal = {
+        show: false,
+        mode: null
+      }
     },
     modalChangeName(name) {
-      this.modalPlantName = name
+      this.modal.input.name = name
     },
-    switchTab(id) {
-      this.$store.dispatch('getPlant', { id: id })
+    switchTab(plant) {
+      this.selectedPlant = plant
     },
     getPlants() {
       this.$store.dispatch('getPlants')
-    },
-    getPlant(id) {
-      this.$store.dispatch('getPlant', { id: id })
     }
   }
 }
