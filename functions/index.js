@@ -23,9 +23,7 @@ exports.addRecord = functions.https.onRequest((req, res) => {
   }
 
   if (!record.id || !record.humidity) {
-    res
-      .status(400)
-      .json({ status: 'NG', error: '植物のIDまたは湿度が指定されていません' })
+    res.json({ status: 'NG', error: '植物のIDまたは湿度が指定されていません' })
     retuurn
   }
 
@@ -41,13 +39,13 @@ exports.addRecord = functions.https.onRequest((req, res) => {
       return snapshot.ref.collection('records').add(record)
     })
     .then(doc => {
-      return res.status(200).json({
+      return res.json({
         id: doc.id,
         status: 'OK'
       })
     })
     .catch(error => {
-      return res.status(400).json({
+      return res.json({
         status: 'NG',
         error: error
       })
@@ -70,13 +68,13 @@ exports.getPlants = functions.https.onRequest((req, res) => {
       return Promise.all(getRecordPromises)
     })
     .then(plants => {
-      return res.status(200).json({
+      return res.json({
         status: 'OK',
         plants: plants
       })
     })
     .catch(error => {
-      return res.status(400).json({
+      return res.json({
         status: 'NG',
         error: errorToString(error)
       })
@@ -119,21 +117,19 @@ exports.createPlant = functions.https.onRequest((req, res) => {
   }
 
   if (!plant.name) {
-    res
-      .status(400)
-      .json({ status: 'NG', error: '植物の名前が指定されていません。' })
+    res.json({ status: 'NG', error: '植物の名前が指定されていません。' })
     return
   }
   db.collection('plants')
     .add(plant)
     .then(snapshot => {
-      return res.status(200).json({
+      return res.json({
         status: 'OK',
         plant: Object.assign({}, { id: snapshot.id }, plant)
       })
     })
     .catch(error => {
-      return res.status(400).json({
+      return res.json({
         status: 'NG',
         error: errorToString(error)
       })
@@ -151,9 +147,7 @@ exports.updatePlant = functions.https.onRequest((req, res) => {
   }
 
   if (!plant.id || !plant.name) {
-    res
-      .status(400)
-      .json({ status: 'NG', error: '植物のIDまたは名前が指定されていません' })
+    res.json({ status: 'NG', error: '植物のIDまたは名前が指定されていません' })
     return
   }
 
@@ -169,10 +163,10 @@ exports.updatePlant = functions.https.onRequest((req, res) => {
       return snapshot.ref.update(plant)
     })
     .then(() => {
-      return res.status(200).json({ status: 'OK' })
+      return res.json({ status: 'OK' })
     })
     .catch(error => {
-      return res.status(400).json({ status: 'NG', error: errorToString(error) })
+      return res.json({ status: 'NG', error: errorToString(error) })
     })
 })
 
@@ -182,9 +176,7 @@ exports.deletePlant = functions.https.onRequest((req, res) => {
   res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS, POST')
 
   if (!req.body.id) {
-    res
-      .status(400)
-      .json({ status: 'NG', error: '植物のIDが指定されていません。' })
+    res.json({ status: 'NG', error: '植物のIDが指定されていません。' })
     return
   }
 
@@ -219,10 +211,10 @@ exports.deletePlant = functions.https.onRequest((req, res) => {
       return snapshot.ref.delete()
     })
     .then(() => {
-      return res.status(200).json({ status: 'OK' })
+      return res.json({ status: 'OK' })
     })
     .catch(error => {
-      return res.status(400).json({ status: 'NG', error: errorToString(error) })
+      return res.json({ status: 'NG', error: errorToString(error) })
     })
 })
 

@@ -52,12 +52,11 @@
     </section>
 
     <plant-modal
-      v-if="modal.show"
-      :show="modal.show"
-      :mode="modal.mode"
-      :plant-id="modal.plantId"
-      :name="modal.input.name"
-      @change-name="modalChangeName"
+      v-if="shownModal"
+      :show="shownModal"
+      :mode="modalMode"
+      :plant-id="modalPlantId"
+      :name="modalInputName"
       @close="closeModal"
     />
   </main>
@@ -76,14 +75,10 @@ export default {
     Chart
   },
   data: () => ({
-    modal: {
-      show: false,
-      mode: null,
-      plantId: null,
-      input: {
-        name: null
-      }
-    },
+    shownModal: false,
+    modalMode: null,
+    modalPlantId: null,
+    modalInputName: null,
     selectedPlant: null
   }),
   computed: {
@@ -92,7 +87,18 @@ export default {
   watch: {
     plants(value) {
       if (value && value.length) {
-        this.switchTab(value[0])
+        if (!this.selectedPlant) {
+          this.switchTab(value[0])
+        } else {
+          const selected = value.filter(plant => {
+            return plant.id === this.selectedPlant.id
+          })
+          if (selected.length) {
+            this.switchTab(selected[0])
+          } else {
+            this.switchTab(value[0])
+          }
+        }
       }
     }
   },
@@ -101,12 +107,10 @@ export default {
   },
   methods: {
     showModal(mode, plant) {
-      this.modal = {
-        show: true,
-        mode: mode,
-        plantId: plant ? plant.id : null,
-        input: { name: plant ? plant.name : null }
-      }
+      this.shownModal = true
+      this.modalMode = mode
+      this.modalPlantId = plant ? plant.id : null
+      this.modalInputName = plant ? plant.name : null
     },
     editSelectedPlant(plant) {
       this.showModal('edit', plant)
@@ -118,13 +122,8 @@ export default {
       if (autoClose) {
         this.getPlants()
       }
-      this.modal = {
-        show: false,
-        mode: null
-      }
-    },
-    modalChangeName(name) {
-      this.modal.input.name = name
+      this.shownModal = false
+      this.mode = null
     },
     switchTab(plant) {
       this.selectedPlant = plant

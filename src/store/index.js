@@ -23,11 +23,11 @@ export const actions = {
     try {
       const res = await axios.get(API_URL + 'getPlants')
       if (res.data.status !== 'OK') {
-        throw new Error('観葉植物一覧の取得に失敗しました。')
+        throw new Error(res.data.error)
       }
       commit('setStatus', {
         action: 'getPlants',
-        state: 'respond-with-succeed'
+        state: 'respond-with-success'
       })
       commit('setPlants', res.data.plants)
     } catch (error) {
@@ -52,11 +52,11 @@ export const actions = {
         })
       )
       if (res.data.status !== 'OK') {
-        throw new Error('観葉植物の追加に失敗しました。')
+        throw new Error(res.data.error)
       }
       commit('setStatus', {
         action: 'addPlant',
-        state: 'respond-with-succeed'
+        state: 'respond-with-success'
       })
     } catch (error) {
       commit('setStatus', {
@@ -80,11 +80,11 @@ export const actions = {
         })
       )
       if (res.data.status !== 'OK') {
-        throw new Error('観葉植物の更新に失敗しました。')
+        throw new Error(res.data.error)
       }
       commit('setStatus', {
         action: 'editPlant',
-        state: 'redpond-with-success'
+        state: 'respond-with-success'
       })
     } catch (error) {
       commit('setStatus', {
@@ -106,17 +106,17 @@ export const actions = {
           id: payload.id
         })
       )
-      if (res.status !== 'OK') {
-        throw new Error('観葉植物の削除に失敗しました。')
+      if (res.data.status !== 'OK') {
+        throw new Error(res.data.error)
       }
       commit('setStatus', {
         action: 'deletePlant',
-        state: 'redpond-with-success'
+        state: 'respond-with-success'
       })
     } catch (error) {
       commit('setStatus', {
         action: 'deletePlant',
-        state: 'redpond-with-error',
+        state: 'respond-with-error',
         error: error.message
       })
     }
